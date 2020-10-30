@@ -32,10 +32,11 @@ theme_themeo <- function () {
           strip.text=element_text(hjust=0) )}
 
 #Edited Survey Response data (cleaned up for clarity)
-dem<-read.csv("SurveyData_edits.csv", header=T)
-  str(dem)
+#dem<-read.csv("SurveyData_edits.csv", header=T)
 
-
+# Will look for repository folder under C drive user folder automatically. Repeated below for other data files. From Kisei  
+dem<- read.csv(paste0("C:/Users/",Sys.info()[7],"/tourism/data/SurveyData_edits.csv"), header=T)
+str(dem)
 # Distribution of respondents' age
 dem2<- dem %>% filter(!is.na(AGE))
 
@@ -79,7 +80,8 @@ ggsave("Figure2_density.pdf",width= 183, units="mm", denp)
 
 
 ####################### Summary and plotting of attributes rank scores ########################
-dat2<-read.csv("AttributeRank.csv", header=T)
+dat2<- read.csv(paste0("C:/Users/",Sys.info()[7],"/tourism/data/AttributeRank.csv"), header=T)
+#dat2<-read.csv("AttributeRank.csv", header=T)
 dat2<-gather(dat2,attribute, rank, Attrib_Unique:Attrib_Convenience)
 
   ## Attribute Rank overall
@@ -123,8 +125,8 @@ dat2<-gather(dat2,attribute, rank, Attrib_Unique:Attrib_Convenience)
     ggsave("Ranking_change.pdf", width=183, units="mm", plot=pdif)
 
 ############## Willingness to Pay Analyses ###############################################
-
-datWTP<- read.csv("WTPsurvey.csv", header=T)
+datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/tourism/data/WTPsurvey.csv"), header=T)
+#datWTP<- read.csv("WTPsurvey.csv", header=T)
     
     ## Double bid dichotomous choice of Elkhorn Slough WTP Question. same models described by Colgan report
     
