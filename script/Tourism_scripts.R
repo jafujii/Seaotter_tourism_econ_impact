@@ -17,6 +17,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
 BiocManager::install("Icens")
+library(Incens)
 
 ### ggplot Theme from Becker
 theme_themeo <- function () { 
@@ -35,7 +36,7 @@ theme_themeo <- function () {
 #dem<-read.csv("SurveyData_edits.csv", header=T)
 
 # Will look for repository folder under C drive user folder automatically. Repeated below for other data files. From Kisei  
-dem<- read.csv(paste0("C:/Users/",Sys.info()[7],"/tourism/data/SurveyData_edits.csv"), header=T)
+dem<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/SurveyData_edits.csv"), header=T)
 str(dem)
 # Distribution of respondents' age
 dem2<- dem %>% filter(!is.na(AGE))
@@ -80,7 +81,7 @@ ggsave("Figure2_density.pdf",width= 183, units="mm", denp)
 
 
 ####################### Summary and plotting of attributes rank scores ########################
-dat2<- read.csv(paste0("C:/Users/",Sys.info()[7],"/tourism/data/AttributeRank.csv"), header=T)
+dat2<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/AttributeRank.csv"), header=T)
 #dat2<-read.csv("AttributeRank.csv", header=T)
 dat2<-gather(dat2,attribute, rank, Attrib_Unique:Attrib_Convenience)
 
@@ -125,8 +126,13 @@ dat2<-gather(dat2,attribute, rank, Attrib_Unique:Attrib_Convenience)
     ggsave("Ranking_change.pdf", width=183, units="mm", plot=pdif)
 
 ############## Willingness to Pay Analyses ###############################################
-datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/tourism/data/WTPsurvey.csv"), header=T)
+datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/WTPsurvey.csv"), header=T)
 #datWTP<- read.csv("WTPsurvey.csv", header=T)
+    
+    ## Re-run of model script from Colgan 11/8/2020, This gets the higher mean that they reported. 
+    #Difference is log of bid amounts and use of default distribution (log-logistic). Truncated means are more in line with my results
+    db.logit2<-dbchoice(OTR1+OTR2~log(Income)| log(OTBID_1)+log(OTBID_2),data=datWTP)
+    db.logit3<- dbchoice(ESR1+ESR2~log(Income)| log(ESBID_1)+log(ESBID_2),data=datWTP)
     
     ## Double bid dichotomous choice of Elkhorn Slough WTP Question. same models described by Colgan report
     
