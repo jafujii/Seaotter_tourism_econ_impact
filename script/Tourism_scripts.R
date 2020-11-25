@@ -1,4 +1,5 @@
-## MIIS Survey Data Summary Figures
+## Fujii et al. SeaOtters_Economic_Value
+##Survey Data Summary Figures
 
 library(tidyverse)
 library(patchwork)
@@ -41,20 +42,20 @@ str(dem)
 # Distribution of respondents' age
 dem2<- dem %>% filter(!is.na(AGE))
 
-ageden<-ggplot(dem2, aes(x= AGE))+geom_density(aes(y=..scaled..), alpha=0.2, color= "Blue",fill= "Blue")+ scale_y_continuous(limits=c(0,1), name="proportion")+
-  geom_rug(aes(x=AGE, y=0), sides="b", position="jitter") + scale_x_continuous(name="Age(years)")+ theme_themeo()
+ageden<-ggplot(dem2, aes(x= AGE))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ scale_y_continuous(limits=c(0,1), name="Proportion of respondents")+
+  geom_rug(aes(x=AGE, y=0), sides="b", position="jitter") + scale_x_continuous(name="Age (years)")+ theme_themeo()
 
 
 ## Density plot previous visits on Log scale with "rug" to show sample data
-visden<-ggplot(dem2, aes(x= NVisits))+geom_density(aes(y=..scaled..), alpha=0.2, color= "Blue",fill= "Blue")+ 
+visden<-ggplot(dem2, aes(x= NVisits))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
   geom_rug(aes(x=NVisits, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,1), name="")+
-  scale_x_continuous(name= "Log (Number previous visits)", trans="log1p", labels=scales::label_number(), breaks=c(0,50,100,200)) + theme_themeo() 
+  scale_x_continuous(name= "Log (Number previous visits)", trans="log1p", labels=scales::label_number(), breaks=c(0, 10,50,100,200)) + theme_themeo() 
 
 
 # Density plot visitor reported income on Log scale with "rug" to show sample data
 
-incden<- ggplot(dem, aes(x= Income))+geom_density(aes(y=..scaled..), alpha=0.2, color= "Blue",fill= "Blue")+ 
-  geom_rug(aes(x=Income, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,1), name="proportion") +
+incden<- ggplot(dem, aes(x= Income))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
+  geom_rug(aes(x=Income, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,1), name="Proportion of respondents") +
   scale_x_continuous(name= "Log (Annual Income)", trans="log10", labels=scales::label_number()) + theme_themeo() 
 
 # Bar plot of origin of visit
@@ -69,8 +70,8 @@ hm<- ggplot(home, aes(x=name, y= prop))+ geom_bar(stat="identity")+ theme_themeo
 
 ##Party Size density plot with "rug" to show sample data
   # Outliers of Party Size were not included in reported averages by Colgan, so also removed here. Likely data entry errors  
-dem2<- dem %>% filter(Partysize <30)
-Psden<- ggplot(dem2, aes(x= Partysize))+geom_density(aes(y=..scaled..), alpha=0.2, color= "Blue",fill= "Blue")+ 
+dem2<- dem %>% filter(Partysize <30) 
+Psden<- ggplot(dem2, aes(x= Partysize))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
   geom_rug(aes(x=Partysize, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,1), name="") +
   scale_x_continuous(name= "Party Size") + theme_themeo() 
 
@@ -137,11 +138,11 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
     ## Double bid dichotomous choice of Elkhorn Slough WTP Question. same models described by Colgan report
     
     datES<- datWTP %>% dplyr::select(ESR1, ESR2,Income, ESBID_1,ESBID_2, Attrib_Birds,Attrib_Unique,Attrib_Otter,
-                                     Attrib_Fish, Attrib_Convenience, NVisits,MBA) %>% drop_na()
+                                     Attrib_Fish, Attrib_Convenience, NVisits,MBA, AGE) %>% drop_na()
     
     ESd0<- dbchoice(ESR1 +ESR2 ~ 1 | ESBID_1 + ESBID_2,dist="logistic",na.rm=TRUE, data=datES)  # Null Model
     Esd1<-dbchoice(ESR1 +ESR2 ~ 1 + log(Income) | ESBID_1 + ESBID_2,dist="logistic",na.rm=TRUE, data=datES) # Reported model
-    Esdfull<- dbchoice(ESR1 +ESR2 ~ 1 + log(Income) + Attrib_Otter + Attrib_Unique + Attrib_Birds + Attrib_Fish + 
+    Esdfull<- dbchoice(ESR1 +ESR2 ~ 1 + log(Income) + log(AGE)+ Attrib_Otter + Attrib_Unique + Attrib_Birds + Attrib_Fish + 
                          Attrib_Convenience +NVisits + MBA| ESBID_1 + ESBID_2,dist="logistic",na.rm=TRUE, data=datES) # All reported factors
     Esd2<-dbchoice(ESR1 +ESR2 ~ 1 + log(Income) + Attrib_Otter  + 
                      Attrib_Convenience  | ESBID_1 + ESBID_2,dist="logistic", na.rm=TRUE, data=datES)
