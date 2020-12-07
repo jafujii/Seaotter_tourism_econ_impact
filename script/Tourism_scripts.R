@@ -16,6 +16,7 @@ library(AICcmodavg)
 # Package required for DCchoice that no longer installs automatically
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
+BiocManager::install(version = "3.12")
 
 BiocManager::install("Icens")
 library(Incens)
@@ -49,7 +50,17 @@ ageden<-ggplot(dem2, aes(x= AGE))+geom_density(aes(y=..scaled..), alpha=0.3, col
 ## Density plot previous visits on Log scale with "rug" to show sample data
 visden<-ggplot(dem2, aes(x= NVisits))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
   geom_rug(aes(x=NVisits, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,1), name="")+
-  scale_x_continuous(name= "Log (Number previous visits)", trans="log1p", labels=scales::label_number(), breaks=c(0, 10,50,100,200)) + theme_themeo() 
+  scale_x_continuous(name= "Log (Number previous visits)", trans="log1p", labels=scales::label_number(), breaks=c(0, 10,50,100,200)) + 
+  theme_classic()+
+  theme(strip.background = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
+        axis.text.y = element_blank(),
+        axis.ticks.length=unit(-0.1, "cm"),
+        panel.border = element_rect(colour = "black", fill=NA, size=.5),
+        legend.title=element_blank(),
+        legend.position="bottom",
+        strip.text=element_text(hjust=0) )
 
 
 # Density plot visitor reported income on Log scale with "rug" to show sample data
@@ -73,18 +84,30 @@ hm<- ggplot(home, aes(x=name, y= prop))+ geom_bar(stat="identity")+ theme_themeo
 dem2<- dem %>% filter(Partysize <30) 
 Psden<- ggplot(dem2, aes(x= Partysize))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
   geom_rug(aes(x=Partysize, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,1), name="") +
-  scale_x_continuous(name= "Party Size") + theme_themeo() 
+  scale_x_continuous(name= "Party Size") + theme_classic()+
+  theme(strip.background = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
+        axis.text.y = element_blank(),
+        axis.ticks.length=unit(-0.1, "cm"),
+        panel.border = element_rect(colour = "black", fill=NA, size=.5),
+        legend.title=element_blank(),
+        legend.position="bottom",
+        strip.text=element_text(hjust=0) )
 
 ## Combining plots together and exporting
 denp<- (ageden + Psden)/(incden + visden)
 ggsave("Figure2_density.pdf",width= 183, units="mm", denp)
-
+ggsave("Figure2_density.png",width= 183, units="mm", denp)
 
 
 ####################### Summary and plotting of attributes rank scores ########################
 dat2<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/AttributeRank.csv"), header=T)
 #dat2<-read.csv("AttributeRank.csv", header=T)
 dat2<-gather(dat2,attribute, rank, Attrib_Unique:Attrib_Convenience)
+tbl<-table(dat3$attribute, dat3$rank) # Count of ranking scores by attribute
+chisq.test(tbl) # Chi-Square test 
+
 
   ## Attribute Rank overall
   dat2<- dat2 %>%  mutate(name=factor(attribute, levels= c( "Attrib_Otter", "Attrib_Unique","Attrib_Convenience",
@@ -125,14 +148,15 @@ dat2<-gather(dat2,attribute, rank, Attrib_Unique:Attrib_Convenience)
 
   # Save plot 
     ggsave("Ranking_change.pdf", width=183, units="mm", plot=pdif)
+    ggsave("Ranking_change.png", width=183, units="mm", plot=pdif)
 
 ############## Willingness to Pay Analyses ###############################################
 datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/WTPsurvey.csv"), header=T)
-#datWTP<- read.csv("WTPsurvey.csv", header=T)
+
     
     ## Re-run of model script from Colgan 11/8/2020, This gets the higher mean that they reported. 
     #Difference is log of bid amounts and use of default distribution (log-logistic). Truncated means are more in line with my results
-    db.logit2<-dbchoice(OTR1+OTR2~log(Income)| log(OTBID_1)+log(OTBID_2),data=datWTP)
+    db.logit2<-dbchoice(OTR1+OTR2~log(Income)| log(OTBID_1)+log(OTBID_2), dist= "log-logistic",data=datWTP)
     db.logit3<- dbchoice(ESR1+ESR2~log(Income)| log(ESBID_1)+log(ESBID_2),data=datWTP)
     
     ## Double bid dichotomous choice of Elkhorn Slough WTP Question. same models described by Colgan report
@@ -141,9 +165,9 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
                                      Attrib_Fish, Attrib_Convenience, NVisits,MBA, AGE) %>% drop_na()
     
     ESd0<- dbchoice(ESR1 +ESR2 ~ 1 | ESBID_1 + ESBID_2,dist="logistic",na.rm=TRUE, data=datES)  # Null Model
-    Esd1<-dbchoice(ESR1 +ESR2 ~ 1 + log(Income) | ESBID_1 + ESBID_2,dist="logistic",na.rm=TRUE, data=datES) # Reported model
-    Esdfull<- dbchoice(ESR1 +ESR2 ~ 1 + log(Income) + log(AGE)+ Attrib_Otter + Attrib_Unique + Attrib_Birds + Attrib_Fish + 
+    Esdfull<- dbchoice(ESR1 +ESR2 ~ 1 + log(Income) + log(AGE)+ Attrib_Otter + Attrib_Unique + 
                          Attrib_Convenience +NVisits + MBA| ESBID_1 + ESBID_2,dist="logistic",na.rm=TRUE, data=datES) # All reported factors
+    Esd1<-dbchoice(ESR1 +ESR2 ~ 1 + log(Income) | ESBID_1 + ESBID_2,dist="logistic",na.rm=TRUE, data=datES) # Reported model
     Esd2<-dbchoice(ESR1 +ESR2 ~ 1 + log(Income) + Attrib_Otter  + 
                      Attrib_Convenience  | ESBID_1 + ESBID_2,dist="logistic", na.rm=TRUE, data=datES)
     Esd3<-dbchoice(ESR1 +ESR2 ~ 1 + log(Income) + Attrib_Otter | ESBID_1 + ESBID_2,dist="logistic", na.rm=TRUE, data=datES)
@@ -159,13 +183,12 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
     ## Sea Otter survey
     datS<- datWTP %>% dplyr::select(OTR1, OTR2,Income, OTBID_1,OTBID_2, Attrib_Birds,Attrib_Unique,Attrib_Otter,Attrib_Fish, Attrib_Convenience, NVisits,MBA) %>% drop_na()
     Sdb0<- dbchoice(OTR1 +OTR2 ~ 1 | OTBID_1 + OTBID_2,dist="logistic",na.rm=TRUE, data=datS)
-    
-    Sdb1<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) | OTBID_1 + OTBID_2,dist="logistic", data=datS)
-    Sdbfull<- dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter + Attrib_Unique + Attrib_Birds + Attrib_Fish + 
+     Sdbfull<- dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter + Attrib_Unique + Attrib_Birds + Attrib_Fish + 
                          Attrib_Convenience + NVisits +MBA  | OTBID_1 + OTBID_2,dist="logistic", data=datS)
-    Sdb2<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter  + 
+    Sdb1<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) | OTBID_1 + OTBID_2,dist="logistic", data=datS)
+   Sdb2<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter  + 
                      Attrib_Convenience  | OTBID_1 + OTBID_2,dist="logistic", data=datS)
-    Sdb3<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter  | OTBID_1 + OTBID_2,dist="logistic", data=datS)
+    Sdb3<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter  | OTBID_1 + OTBID_2,dist="logistic",na.rm=TRUE, data=datS)
     Sdb4<-dbchoice(OTR1 +OTR2 ~ 1 + Attrib_Otter  | OTBID_1 + OTBID_2,dist="logistic", data=datS)
     AIC(Sdb0, Sdb1, Sdbfull, Sdb2, Sdb3, Sdb4)
       summary(Sdb3)
@@ -173,10 +196,10 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
     
     # Bootstrap confidence intervals about mean Willingness to pay for best fit model
     set.seed(123)
-    bootCI(Sdb4, nboot = 1000, CI = 0.95, individual = NULL)
+    bootCI(Sdb3, nboot = 1000, CI = 0.95, individual = NULL)
     
     ### Plot Probability for both questions based on model output
-    Sp<-plot(Sdb4, xlab="Bid Amount (USD)",ylab="") 
+    Sp<-plot(Sdb3, xlab="Bid Amount (USD)",ylab="") 
       abline(h=0.5, col="grey")
       segments(x0=27.6, y0=-1, x1=27.6, y1=0.5, col="red")
     
@@ -185,21 +208,25 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
       segments(x0=29.8, y0=-1, x1=29.8, y1=0.5, col="red")
     
         Sp + Ep
+    ## Bar Plot of raw data
+        datplot<- datWTP %>% dplyr::select ( OTR2, OTBID_2) %>% drop_na() %>% group_by(OTBID_2) %>%summarize(mn1=mean(OTR2))
       
     ## Plot both WTP on single graph
         ## Calculate probabilities with mean otter rank and income, varying bid amount only
-        tst.data<- data.frame(Attrib_Otter=mean(datS$Attrib_Otter), OTBID_1=c(5:50))
-        Spred<-Sdb4 %>% predict(tst.data, type="probability")
+        tst.data<- data.frame(Attrib_Otter= mean(datS$Attrib_Otter), Income= mean(datS$Income), OTBID_1=c(5:50))
+        Spred<- predict(Sdb3, newdata= tst.data, type="probability")
+      
         df<-cbind(tst.data,Spred)
-        tst.data1<- data.frame(Income=mean(datES$Income), Attrib_Otter=mean(datES$Attrib_Otter), ESBID_1=c(5:50))
-        Spred1<- Esd3 %>% predict(tst.data1, type="probability",)
-        df1<-cbind(df,Spred1)
         
+        tst.data1<- data.frame(Income=mean(datES$Income), Attrib_Otter=mean(datES$Attrib_Otter), ESBID_1=c(5:50))
+        Spred1<- Esd3 %>% predict(tst.data1, type="probability")
+        df1<-cbind(df,Spred1)
         
         Preds<-melt(df1,id.vars=c("Attrib_Otter", "OTBID_1"))
         
-        Pred1<-ggplot(Preds, aes(x=OTBID_1, y= value, color=variable)) +geom_smooth(method="loess", size=2) +scale_x_continuous(name="Bid Amount") +theme_themeo() +
-          scale_color_discrete(breaks= c("Spred1","Spred"), labels=c("Elkhorn Slough", "Sea Otter")) +
-          scale_y_continuous(name="Probability of voting yes") 
+        Pred1<-ggplot(Preds, aes(x=OTBID_1, y= value, color=variable)) +geom_smooth(method="loess", size=2) +scale_x_continuous(name="Proposed Fee Amount (USD)") +theme_themeo() +
+          scale_color_manual(breaks= c("Spred1","Spred"), labels=c("Elkhorn Slough", "Sea Otter"), values= c("#026AA4", "#990000" )) +
+          scale_y_continuous(limits= c(0,1), name="Probability of voting yes") + theme( legend.justification= c(0.9,0.9), legend.position=c(0.9,0.9))
         
         ggsave("Fig4_WTP.pdf",Pred1, width=183, scale =1,units="mm")
+        ggsave("Fig4_WTP.png",Pred1, width=183, scale =1,units="mm")
