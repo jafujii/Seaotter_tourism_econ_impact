@@ -153,13 +153,29 @@ chisq.test(tbl) # Chi-Square test
 ############## Willingness to Pay Analyses ###############################################
 datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/WTPsurvey.csv"), header=T)
 
+    table(datWTP$ESR1, datWTP$ESBID_1)
     
-    ## Re-run of model script from Colgan 11/8/2020, This gets the higher mean that they reported. 
-    #Difference is log of bid amounts and use of default distribution (log-logistic). Truncated means are more in line with my results
-    db.logit2<-dbchoice(OTR1+OTR2~log(Income)| log(OTBID_1)+log(OTBID_2), dist= "log-logistic",data=datWTP)
-    db.logit3<- dbchoice(ESR1+ESR2~log(Income)| log(ESBID_1)+log(ESBID_2),data=datWTP)
+    # Data exploration, average proportion of 'yes' responses for first bid amount
+    round(tapply(datWTP$ESR1, datWTP$ESBID_1, mean), 2)
+    round(tapply(datWTP$OTR1, datWTP$OTBID_1, mean), 2)
     
-    ## Double bid dichotomous choice of Elkhorn Slough WTP Question. same models described by Colgan report
+    
+    ## Double bid of Elkhorn Slough WTP Question
+    
+    dat1<- datWTP %>% dplyr::select(ESR1, ESR2,Income,AGE, ESBID_1,ESBID_2, Attrib_Birds,Attrib_Unique,Attrib_Otter,Attrib_Fish, Attrib_Convenience, NVisits,MBA) %>% drop_na()
+    
+    # Test of error distributions used in full model
+    E.log<-  dbchoice(ESR1 +ESR2 ~ 1 + log(Income) +log(AGE)+ Attrib_Otter + Attrib_Unique +
+                        Attrib_Convenience +NVisits + MBA| ESBID_1 + ESBID_2,dist="logistic",na.rm=TRUE, data=dat1)
+    E.loglog<-dbchoice(ESR1 +ESR2 ~ 1 + log(Income) +log(AGE)+ Attrib_Otter + Attrib_Unique +
+                         Attrib_Convenience +NVisits + MBA| log(ESBID_1) + log(ESBID_2),dist="log-logistic",na.rm=TRUE, data=dat1)
+    E.lognormal<-dbchoice(ESR1 +ESR2 ~ 1 + log(Income) +log(AGE)+ Attrib_Otter + Attrib_Unique +
+                            Attrib_Convenience +NVisits + MBA| log(ESBID_1) + log(ESBID_2),dist="log-normal",na.rm=TRUE, data=dat1)
+    
+    AIC(E.log, E.loglog,E.lognormal) # Logistic distribution has lowest AIC
+    
+    
+    ## Double bid dichotomous choice of Elkhorn Slough WTP Question
     
     datES<- datWTP %>% dplyr::select(ESR1, ESR2,Income, ESBID_1,ESBID_2, Attrib_Birds,Attrib_Unique,Attrib_Otter,
                                      Attrib_Fish, Attrib_Convenience, NVisits,MBA, AGE) %>% drop_na()
@@ -183,10 +199,10 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
     ## Sea Otter survey
     datS<- datWTP %>% dplyr::select(OTR1, OTR2,Income, OTBID_1,OTBID_2, Attrib_Birds,Attrib_Unique,Attrib_Otter,Attrib_Fish, Attrib_Convenience, NVisits,MBA) %>% drop_na()
     Sdb0<- dbchoice(OTR1 +OTR2 ~ 1 | OTBID_1 + OTBID_2,dist="logistic",na.rm=TRUE, data=datS)
-     Sdbfull<- dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter + Attrib_Unique + Attrib_Birds + Attrib_Fish + 
+    Sdbfull<- dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter + Attrib_Unique + Attrib_Birds + Attrib_Fish + 
                          Attrib_Convenience + NVisits +MBA  | OTBID_1 + OTBID_2,dist="logistic", data=datS)
     Sdb1<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) | OTBID_1 + OTBID_2,dist="logistic", data=datS)
-   Sdb2<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter  + 
+    Sdb2<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter  + 
                      Attrib_Convenience  | OTBID_1 + OTBID_2,dist="logistic", data=datS)
     Sdb3<-dbchoice(OTR1 +OTR2 ~ 1 + log(Income) + Attrib_Otter  | OTBID_1 + OTBID_2,dist="logistic",na.rm=TRUE, data=datS)
     Sdb4<-dbchoice(OTR1 +OTR2 ~ 1 + Attrib_Otter  | OTBID_1 + OTBID_2,dist="logistic", data=datS)
@@ -198,18 +214,6 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
     set.seed(123)
     bootCI(Sdb3, nboot = 1000, CI = 0.95, individual = NULL)
     
-    ### Plot Probability for both questions based on model output
-    Sp<-plot(Sdb3, xlab="Bid Amount (USD)",ylab="") 
-      abline(h=0.5, col="grey")
-      segments(x0=27.6, y0=-1, x1=27.6, y1=0.5, col="red")
-    
-    Ep<- plot(Esd3, xlab="Bid Amount (USD)")
-      abline(h=0.5, col="grey")
-      segments(x0=29.8, y0=-1, x1=29.8, y1=0.5, col="red")
-    
-        Sp + Ep
-    ## Bar Plot of raw data
-        datplot<- datWTP %>% dplyr::select ( OTR2, OTBID_2) %>% drop_na() %>% group_by(OTBID_2) %>%summarize(mn1=mean(OTR2))
       
     ## Plot both WTP on single graph
         ## Calculate probabilities with mean otter rank and income, varying bid amount only
