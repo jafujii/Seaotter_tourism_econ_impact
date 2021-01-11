@@ -1,0 +1,23 @@
+"""WTPsurvey""",
+DATA SHEET COLUMN,DESCRIPTION
+StartDate,Date (mm/dd/yyyy) and Time (hh:mm ;PST) survey was started 
+ResponseId,Unique identification code for each respondent
+NVisits,Number of previous visits to Elkhorn Slough in past 12 months
+AGE,Age (years) of respondent
+ESBID_1,Dollar Amount (USD) questioned as hypothetical fee for Elkhorn Slough part 1 
+ESBID_2,Dollar Amount (USD) questioned as hypothetical fee for Elkhorn Slough part 2
+ESR1,"Reponse to ESBID_1. 1= Yes, 2= No "
+ESR2,"Reponse to ESBID_2. 1= Yes, 2= No "
+OTBID_1,Dollar Amount (USD) questioned as hypothetical fee for sea otters part 1 
+OTBID_2,Dollar Amount (USD) questioned as hypothetical fee for sea otters part 2
+OTR1,"Reponse to OTR1. 1= Yes, 2= No "
+OTR2,"Reponse to OTR2. 1= Yes, 2= No"
+Age_Range,6 categorical groupings of respondent Age
+Attrib_Unique,"Ranking score of ""uniqueness"" of Elkhorn Slough from 1 to 10"
+Attrib_Otter,"Ranking score of ""sea otters"" in Elkhorn Slough from 1 to 10"
+Attrib_Birds,"Ranking score of ""birds"" in Elkhorn Slough from 1 to 10"
+Attrib_Fish,"Ranking score of ""fish"" in Elkhorn Slough from 1 to 10"
+Attrib_Wildlife,"Ranking score of ""other wildlife"" in Elkhorn Slough from 1 to 10"
+Attrib_Convenience,"Ranking score of ""convenience"" of Elkhorn Slough from 1 to 10"
+Income,Reported annual Income (USD) 
+MBA,"Whether visitor had been to the Monterey Bay Aquarium. 1= Yes, 2= No"

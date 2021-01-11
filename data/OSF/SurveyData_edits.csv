@@ -1,0 +1,21 @@
+DATA SHEET COLUMN,CODE,DEFINITION
+Location_Summary,1,North Harbor
+,2,South Harbor
+,3,Elkhorn Slough National Research Reserve
+,9,Other
+CITY,,
+Age_Range,1,18-29 years
+,2,30-39
+,3,40-49
+,4,50-59
+,5,60-69
+,6,70 and older
+Visit_mode,1,Kayak Tour
+,2,Motor boat Tour
+,3,Own watercraft
+,4,Trails
+,5,Unknown
+Visit_area,1,"Water-based (kayak, motor tour, etc)"
+,2,"Shore-based (hiking,etc)"
+,3,Unknown
+TripType,,

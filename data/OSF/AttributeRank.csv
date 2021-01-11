@@ -1,0 +1,14 @@
+"""AttributeRank""",
+,
+DATASHEET COLUMN,DESCRIPTION
+StartDate,Date (mm/dd/yyyy) and Time (hh:mm ;PST) survey was started 
+ResponseId,Unique identification code for each respondent
+Location_Summary,Area  of Elkhorn Slough where respondent was surveyed 1= North Harbor 2= South Harbor 3= Elkhorn Slough National Research Reserve
+Attrib_Unique,"Ranking score of ""uniqueness"" of Elkhorn Slough from 1 to 10"
+Attrib_Otter,"Ranking score of ""sea otters"" in Elkhorn Slough from 1 to 10"
+Attrib_Birds,"Ranking score of ""birds"" in Elkhorn Slough from 1 to 10"
+Attrib_Fish,"Ranking score of ""fish"" in Elkhorn Slough from 1 to 10"
+Attrib_Wildlife,"Ranking score of ""other wildlife"" in Elkhorn Slough from 1 to 10"
+Attrib_Convenience,"Ranking score of ""convenience"" of Elkhorn Slough from 1 to 10"
+OtterYN,"Whether respondent saw sea otters during their visit. 1= ""yes"" 2= ""no"""
+OtterNum,"Whether respondent saw 1= ""one"" 2= ""a few"" or 3= ""many"" sea otters during their visit"

@@ -26,6 +26,7 @@ theme_themeo <- function () {
   theme_classic()+
     theme(strip.background = element_blank(),
           axis.line = element_blank(),
+          text=element_text(size=15),
           axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
           axis.text.y = element_text(margin = margin(c(1, 0.2), unit = "cm")),
           axis.ticks.length=unit(-0.1, "cm"),
@@ -54,6 +55,7 @@ visden<-ggplot(dem2, aes(x= NVisits))+geom_density(aes(y=..scaled..), alpha=0.3,
   theme_classic()+
   theme(strip.background = element_blank(),
         axis.line = element_blank(),
+        text=element_text(size=15),
         axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
         axis.text.y = element_blank(),
         axis.ticks.length=unit(-0.1, "cm"),
@@ -87,6 +89,7 @@ Psden<- ggplot(dem2, aes(x= Partysize))+geom_density(aes(y=..scaled..), alpha=0.
   scale_x_continuous(name= "Party Size") + theme_classic()+
   theme(strip.background = element_blank(),
         axis.line = element_blank(),
+        text=element_text(size=15),
         axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
         axis.text.y = element_blank(),
         axis.ticks.length=unit(-0.1, "cm"),
@@ -105,7 +108,7 @@ ggsave("Figure2_density.png",width= 183, units="mm", denp)
 dat2<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/AttributeRank.csv"), header=T)
 #dat2<-read.csv("AttributeRank.csv", header=T)
 dat2<-gather(dat2,attribute, rank, Attrib_Unique:Attrib_Convenience)
-tbl<-table(dat3$attribute, dat3$rank) # Count of ranking scores by attribute
+tbl<-table(dat2$attribute, dat2$rank) # Count of ranking scores by attribute
 chisq.test(tbl) # Chi-Square test 
 
 
@@ -234,3 +237,23 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
         
         ggsave("Fig4_WTP.pdf",Pred1, width=183, scale =1,units="mm")
         ggsave("Fig4_WTP.png",Pred1, width=183, scale =1,units="mm")
+        
+        ## Plot by otter ranking instead of bid amount 
+        tdat<- data.frame(Attrib_Otter= c(1:10), Income= mean(datS$Income), OTBID_1= mean(datS$OTBID_1))
+        Spr<-predict(Sdb3, newdata=tdat, type= "probability")
+        df<- cbind(tdat, Spr)
+        
+        tdat1<- data.frame(Attrib_Otter= c(1:10), Income= mean(datES$Income), ESBID_1= mean(datES$ESBID_1))
+        Spr1<-predict(Esd3, newdata=tdat1, type= "probability")
+        df1<- cbind(df, Spr1)
+        
+        ggplot(df, aes(x= Attrib_Otter, y= Spr)) +geom_line() + theme_themeo ()
+        
+        Preds<-melt(df1,id.vars=c("Attrib_Otter", "Income", "OTBID_1"))
+        
+        Pred2<-ggplot(Preds, aes(x=Attrib_Otter, y= value, color=variable)) +geom_line(size=1) +scale_x_continuous(name="Ranking Score of Sea Otters") +theme_themeo() +
+          scale_color_manual(breaks= c("Spr","Spr1"), labels=c("Elkhorn Slough", "Sea Otter"), values= c("#026AA4", "#990000" )) +
+          scale_y_continuous(limits= c(0,0.9), name="Probability of voting yes") + theme( legend.justification= c(0.9,0.95), legend.position=c(0.9,0.95))
+        
+        ggsave("Fig4_OtterRank.pdf",Pred2, width=183, scale =1,units="mm")
+        ggsave("Fig4_OtterRank.png",Pred2, width=183, scale =1,units="mm")
