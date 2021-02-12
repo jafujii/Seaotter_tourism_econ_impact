@@ -68,7 +68,7 @@ bplot<-ggplot(bus, aes(x=Year, y= NoRecBus))+geom_point(color="#026AA4")+ geom_s
 ggsave("Figure_2_business.pdf",width= 183, units="mm", bplot)
 ggsave("Figure_2_business.png",width= 183, units="mm", bplot)
 
-## alternative version of this plot
+## alternative version of this plot with same variables
 bus<- read.csv('./data/ES_businesses.csv', header=T) ## for Mac
 ggplot(bus, aes(x=Year, y= NoRecBus)) + 
   themeKV + 
@@ -76,6 +76,17 @@ ggplot(bus, aes(x=Year, y= NoRecBus)) +
   geom_smooth(method = "loess", formula = y ~ x, span = 0.5, se = TRUE) + 
   scale_y_continuous(name="no. businesses", limits = c(0,9), breaks=c(0,2,4,6,8)) + 
   scale_x_continuous(name="year", limits = c(1990,2020), breaks=c(1990,1995,2000,2005,2010,2015,2020))
+
+## alternative version of this plot as scatter of otters vs businesses
+ggplot(bus, aes(x=NoOtters, y= NoRecBus)) + 
+  themeKV + 
+  geom_point(shape = 21, size = 3, alpha=0.5) + 
+  geom_smooth(method = "loess", formula = y ~ x, span = 0.7, se = TRUE) ## + 
+##  scale_y_continuous(name="no. businesses", limits = c(0,8), breaks=c(0,2,4,6,8)) + 
+##  scale_x_continuous(name="year", limits = c(0,150), breaks=c(0,50,100,150))
+
+
+
 
 
 
