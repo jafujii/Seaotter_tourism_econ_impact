@@ -12,6 +12,8 @@ library(Ecdat)
 library(lmtest)
 library(AICcmodavg)
 library(scales)
+library(ggplot2)
+
 
 
 # Package required for DCchoice that no longer installs automatically
@@ -21,6 +23,7 @@ BiocManager::install(version = "3.12")
 
 BiocManager::install("Icens")
 library(Incens)
+
 
 ### ggplot Theme from Becker
 theme_themeo <- function () { 
@@ -36,19 +39,45 @@ theme_themeo <- function () {
           legend.position="bottom",
           strip.text=element_text(hjust=0) )}
 
+library(ggthemes)
+themeKV <- theme_few() +
+  theme(strip.background = element_blank(),
+        axis.line = element_blank(),
+        axis.text.x = element_text(margin = margin(0.2, unit = "cm")),
+        axis.text.y = element_text(margin = margin(c(1, 0.2), unit = "cm")),
+        axis.ticks.length=unit(-0.15, "cm"),element_line(colour = "black", size=.5),
+        panel.border = element_rect(colour = "black", fill=NA, size=.5),
+        legend.title=element_blank(),
+        strip.text=element_text(hjust=0))
 
 
 # Will look for repository folder under C drive user folder automatically. Repeated below for other data files. From Kisei  
 
-bus<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/ES_businesses.csv"), header=T)
+bus<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/ES_businesses.csv"), header=T) ## for PC
 str(bus)
+
+
+## times series plot
+## number of tourism businesses in the Elkhorn SLough NERR
+## obtained from BBB (http:// ______), on this date: _______
 
 bplot<-ggplot(bus, aes(x=Year, y= NoRecBus))+geom_point(color="#026AA4")+ geom_smooth(color= "#026AA4",se=FALSE) + 
   scale_y_continuous(name="No recreational businesses", breaks=c(2,4,6,8)) +
   theme_themeo()
-
+## print(bplot)
 ggsave("Figure_2_business.pdf",width= 183, units="mm", bplot)
 ggsave("Figure_2_business.png",width= 183, units="mm", bplot)
+
+## alternative version of this plot
+bus<- read.csv('./data/ES_businesses.csv', header=T) ## for Mac
+ggplot(bus, aes(x=Year, y= NoRecBus)) + 
+  themeKV + 
+  geom_point(shape = 21, size = 3, alpha=0.5) + 
+  geom_smooth(method = "loess", formula = y ~ x, span = 0.5, se = TRUE) + 
+  scale_y_continuous(name="no. businesses", limits = c(0,9), breaks=c(0,2,4,6,8)) + 
+  scale_x_continuous(name="year", limits = c(1990,2020), breaks=c(1990,1995,2000,2005,2010,2015,2020))
+
+
 
 dem<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/SurveyData_edits.csv"), header=T)
 str(dem)
