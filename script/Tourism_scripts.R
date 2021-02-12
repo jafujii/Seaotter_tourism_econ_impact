@@ -11,6 +11,7 @@ library(DCchoice)
 library(Ecdat)
 library(lmtest)
 library(AICcmodavg)
+library(scales)
 
 
 # Package required for DCchoice that no longer installs automatically
@@ -35,29 +36,44 @@ theme_themeo <- function () {
           legend.position="bottom",
           strip.text=element_text(hjust=0) )}
 
-#Edited Survey Response data (cleaned up for clarity)
-#dem<-read.csv("SurveyData_edits.csv", header=T)
+
 
 # Will look for repository folder under C drive user folder automatically. Repeated below for other data files. From Kisei  
+
+bus<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/ES_businesses.csv"), header=T)
+str(bus)
+
+bplot<-ggplot(bus, aes(x=Year, y= NoRecBus))+geom_point(color="#026AA4")+ geom_smooth(color= "#026AA4",se=FALSE) + 
+  scale_y_continuous(name="No recreational businesses", breaks=c(2,4,6,8)) +
+  theme_themeo()
+
+ggsave("Figure_2_business.pdf",width= 183, units="mm", bplot)
+ggsave("Figure_2_business.png",width= 183, units="mm", bplot)
+
 dem<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/SurveyData_edits.csv"), header=T)
 str(dem)
 # Distribution of respondents' age
 dem2<- dem %>% filter(!is.na(AGE))
 
-ageden<-ggplot(dem2, aes(x= AGE))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ scale_y_continuous(limits=c(0,1), name="Proportion of respondents")+
+ageden<-ggplot(dem2, aes(x= AGE))+geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ scale_y_continuous(limits=c(0,0.025), name="Proportion of respondents", breaks=c(0.00,0.01,0.02,0.03))+
+  geom_rug(aes(x=AGE, y=0), sides="b", position="jitter") + scale_x_continuous(name="Age (years)")+ theme_themeo()
+
+ageden1<-ggplot(dem2, aes(x= AGE))+ geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ scale_y_continuous(limits=c(0,0.03), name="Proportion of respondents", breaks=c(0.00,0.01,0.02,0.03))+
   geom_rug(aes(x=AGE, y=0), sides="b", position="jitter") + scale_x_continuous(name="Age (years)")+ theme_themeo()
 
 
+
 ## Density plot previous visits on Log scale with "rug" to show sample data
-visden<-ggplot(dem2, aes(x= NVisits))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
-  geom_rug(aes(x=NVisits, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,1), name="")+
+visden<-ggplot(dem2, aes(x= NVisits))+geom_density( alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
+  geom_rug(aes(x=NVisits, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,0.65), name="")+
   scale_x_continuous(name= "Log (Number previous visits)", trans="log1p", labels=scales::label_number(), breaks=c(0, 10,50,100,200)) + 
+  theme_themeo()
   theme_classic()+
   theme(strip.background = element_blank(),
         axis.line = element_blank(),
         text=element_text(size=15),
         axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
-        axis.text.y = element_blank(),
+        #axis.text.y = element_blank(),
         axis.ticks.length=unit(-0.1, "cm"),
         panel.border = element_rect(colour = "black", fill=NA, size=.5),
         legend.title=element_blank(),
@@ -65,11 +81,12 @@ visden<-ggplot(dem2, aes(x= NVisits))+geom_density(aes(y=..scaled..), alpha=0.3,
         strip.text=element_text(hjust=0) )
 
 
+
 # Density plot visitor reported income on Log scale with "rug" to show sample data
 
-incden<- ggplot(dem, aes(x= Income))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
-  geom_rug(aes(x=Income, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,1), name="Proportion of respondents") +
-  scale_x_continuous(name= "Log (Annual Income)", trans="log10", labels=scales::label_number()) + theme_themeo() 
+incden<- ggplot(dem, aes(x= Income))+geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
+  geom_rug(aes(x=Income, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,0.65), name="Proportion of respondents") +
+  scale_x_continuous(name= "Log (Annual Income)", trans="log1p", labels=scales::label_number(), breaks=c(10000,50000,150000)) + theme_themeo() 
 
 # Bar plot of origin of visit
 # Not currently using
@@ -83,25 +100,32 @@ hm<- ggplot(home, aes(x=name, y= prop))+ geom_bar(stat="identity")+ theme_themeo
 
 ##Party Size density plot with "rug" to show sample data
   # Outliers of Party Size were not included in reported averages by Colgan, so also removed here. Likely data entry errors  
-dem2<- dem %>% filter(Partysize <30) 
-Psden<- ggplot(dem2, aes(x= Partysize))+geom_density(aes(y=..scaled..), alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
-  geom_rug(aes(x=Partysize, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,1), name="") +
-  scale_x_continuous(name= "Party Size") + theme_classic()+
+dem3<- dem %>% filter(Partysize <30) 
+Psden<- ggplot(dem3, aes(x= Partysize))+geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
+  geom_rug(aes(x=Partysize, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,0.45), name="", breaks=c(0.0,0.2,0.4)) +
+  scale_x_continuous(name= "Party Size") +
+  theme_classic()+
   theme(strip.background = element_blank(),
         axis.line = element_blank(),
         text=element_text(size=15),
         axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
-        axis.text.y = element_blank(),
+        axis.text.y = element_text(margin = margin( c(1,0.2), unit = "cm")),
         axis.ticks.length=unit(-0.1, "cm"),
         panel.border = element_rect(colour = "black", fill=NA, size=.5),
         legend.title=element_blank(),
         legend.position="bottom",
         strip.text=element_text(hjust=0) )
 
+#Grouped by Day trip or multiday. Heavily overlapped. Not using
+Psden2<- ggplot(dem3, aes(x= Partysize, group=TripType))+geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
+  geom_rug(aes(x=Partysize, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,0.45), name="") +
+  scale_x_continuous(name= "Party Size") +
+  theme_classic()
+
 ## Combining plots together and exporting
-denp<- (ageden + Psden)/(incden + visden)
-ggsave("Figure2_density.pdf",width= 183, units="mm", denp)
-ggsave("Figure2_density.png",width= 183, units="mm", denp)
+denp<- (ageden + visden)/(incden + Psden )
+ggsave("Figure_2_density_Feb11.pdf",width= 183, units="mm", denp)
+ggsave("Figure_2_density_Feb11.png",width= 183, units="mm", denp)
 
 
 ####################### Summary and plotting of attributes rank scores ########################
