@@ -18,4 +18,5 @@ Visit_mode,1,Kayak Tour
 Visit_area,1,"Water-based (kayak, motor tour, etc)"
 ,2,"Shore-based (hiking,etc)"
 ,3,Unknown
-TripType,,
+TripType,1,Day Trip
+,2,Multi-Day Trip
