@@ -13,6 +13,7 @@ library(lmtest)
 library(AICcmodavg)
 library(scales)
 library(ggplot2)
+library(ggthemes)
 
 
 
@@ -30,9 +31,9 @@ theme_themeo <- function () {
   theme_classic()+
     theme(strip.background = element_blank(),
           axis.line = element_blank(),
-          text=element_text(size=15),
-          axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
-          axis.text.y = element_text(margin = margin(c(1, 0.2), unit = "cm")),
+          text=element_text(size=12),
+          axis.text.x = element_text(size= 12,margin = margin( 0.2, unit = "cm")),
+          axis.text.y = element_text(size=12,margin = margin(c(1, 0.2), unit = "cm")),
           axis.ticks.length=unit(-0.1, "cm"),
           panel.border = element_rect(colour = "black", fill=NA, size=.5),
           legend.title=element_blank(),
@@ -43,8 +44,8 @@ library(ggthemes)
 themeKV <- theme_few() +
   theme(strip.background = element_blank(),
         axis.line = element_blank(),
-        axis.text.x = element_text(margin = margin(0.2, unit = "cm")),
-        axis.text.y = element_text(margin = margin(c(1, 0.2), unit = "cm")),
+        axis.text.x = element_text(size=12,margin = margin(0.2, unit = "cm")),
+        axis.text.y = element_text(size=12,margin = margin(c(1, 0.2), unit = "cm")),
         axis.ticks.length=unit(-0.15, "cm"),element_line(colour = "black", size=.5),
         panel.border = element_rect(colour = "black", fill=NA, size=.5),
         legend.title=element_blank(),
@@ -59,74 +60,76 @@ str(bus)
 
 ## times series plot
 ## number of tourism businesses in the Elkhorn SLough NERR
-## obtained from BBB (http:// ______), on this date: _______
+## obtained from BBB (https://www.bbb.org/us/ca/moss-landing) and CA state BE (https://businesssearch.sos.ca.gov/), on this date: 10 Feb 2021
 
 bplot<-ggplot(bus, aes(x=Year, y= NoRecBus))+geom_point(color="#026AA4")+ geom_smooth(color= "#026AA4",se=FALSE) + 
   scale_y_continuous(name="No recreational businesses", breaks=c(2,4,6,8)) +
   theme_themeo()
 ## print(bplot)
-ggsave("Figure_2_business.pdf",width= 183, units="mm", bplot)
-ggsave("Figure_2_business.png",width= 183, units="mm", bplot)
+ggsave("Figure_2_business.pdf",width= 183,height=183, units="mm", bplot)
+ggsave("Figure_2_business.png",width= 183, height=183,units="mm", bplot)
 
 ## alternative version of this plot with same variables
 bus<- read.csv('./data/ES_businesses.csv', header=T) ## for Mac
-ggplot(bus, aes(x=Year, y= NoRecBus)) + 
+Bus_yr<-ggplot(bus, aes(x=Year, y= NoRecBus)) + 
   themeKV + 
   geom_point(shape = 21, size = 3, alpha=0.5) + 
   geom_smooth(method = "loess", formula = y ~ x, span = 0.5, se = TRUE) + 
-  scale_y_continuous(name="no. businesses", limits = c(0,9), breaks=c(0,2,4,6,8)) + 
-  scale_x_continuous(name="year", limits = c(1990,2020), breaks=c(1990,1995,2000,2005,2010,2015,2020))
+  scale_y_continuous(name="No. Businesses", limits = c(0,9), breaks=c(0,2,4,6,8)) + 
+  scale_x_continuous(name="Year", limits = c(1990,2020), breaks=c(1990,1995,2000,2005,2010,2015,2020))
+
+ggsave("Figure_2_business.pdf",width= 90,height=90, units="mm", Bus_yr)
+ggsave("Figure_2_business.png",width= 90, height=90,units="mm", Bus_yr)
 
 ## alternative version of this plot as scatter of otters vs businesses
-ggplot(bus, aes(x=NoOtters, y= NoRecBus)) + 
+Otr_bus<-ggplot(bus, aes(x=NoOtters, y= NoRecBus)) + 
   themeKV + 
   geom_point(shape = 21, size = 3, alpha=0.5) + 
-  geom_smooth(method = "loess", formula = y ~ x, span = 0.7, se = TRUE) ## + 
-##  scale_y_continuous(name="no. businesses", limits = c(0,8), breaks=c(0,2,4,6,8)) + 
-##  scale_x_continuous(name="year", limits = c(0,150), breaks=c(0,50,100,150))
+  geom_smooth(method = "loess", formula = y ~ x, span = 0.7, se = TRUE) + 
+  scale_y_continuous(name="no. businesses", limits = c(0,8), breaks=c(0,2,4,6,8)) + 
+  scale_x_continuous(name="no. sea otters", limits = c(0,150), breaks=c(0,50,100,150))
 
 
+ggsave("Figure_SX_business_otters.pdf",width= 90,height=90, units="mm", Otr_bus)
+ggsave("Figure_SX_business_otters.png",width= 90, height=90,units="mm", Otr_bus)
 
-
-
+##Figure 3 Density plots of visitor demographics ##
 
 dem<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/SurveyData_edits.csv"), header=T)
 str(dem)
 # Distribution of respondents' age
 dem2<- dem %>% filter(!is.na(AGE))
 
-ageden<-ggplot(dem2, aes(x= AGE))+geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ scale_y_continuous(limits=c(0,0.025), name="Proportion of respondents", breaks=c(0.00,0.01,0.02,0.03))+
-  geom_rug(aes(x=AGE, y=0), sides="b", position="jitter") + scale_x_continuous(name="Age (years)")+ theme_themeo()
-
-ageden1<-ggplot(dem2, aes(x= AGE))+ geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ scale_y_continuous(limits=c(0,0.03), name="Proportion of respondents", breaks=c(0.00,0.01,0.02,0.03))+
-  geom_rug(aes(x=AGE, y=0), sides="b", position="jitter") + scale_x_continuous(name="Age (years)")+ theme_themeo()
-
+ageden<-ggplot(dem2, aes(x= AGE))+geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
+  scale_y_continuous(limits=c(0,0.025), name=" ", breaks=c(0.00,0.01,0.02))+
+  geom_rug(aes(x=AGE, y=0), sides="b", position="jitter") + scale_x_continuous(name="Age (years)")+ themeKV
 
 
 ## Density plot previous visits on Log scale with "rug" to show sample data
 visden<-ggplot(dem2, aes(x= NVisits))+geom_density( alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
-  geom_rug(aes(x=NVisits, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,0.65), name="")+
+  geom_rug(aes(x=NVisits, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,0.65), breaks=c(0.0,0.3,0.6),name="")+
   scale_x_continuous(name= "Log (Number previous visits)", trans="log1p", labels=scales::label_number(), breaks=c(0, 10,50,100,200)) + 
-  theme_themeo()
-  theme_classic()+
-  theme(strip.background = element_blank(),
-        axis.line = element_blank(),
-        text=element_text(size=15),
-        axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
-        #axis.text.y = element_blank(),
-        axis.ticks.length=unit(-0.1, "cm"),
-        panel.border = element_rect(colour = "black", fill=NA, size=.5),
-        legend.title=element_blank(),
-        legend.position="bottom",
-        strip.text=element_text(hjust=0) )
+  themeKV
+
+ # theme_classic()+
+ # theme(strip.background = element_blank(),
+ #      axis.line = element_blank(),
+ #       text=element_text(size=15),
+ #       axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
+ #      axis.text.y = element_blank(),
+ #       axis.ticks.length=unit(-0.1, "cm"),
+ #       panel.border = element_rect(colour = "black", fill=NA, size=.5),
+ #       legend.title=element_blank(),
+ #       legend.position="bottom",
+ #       strip.text=element_text(hjust=0) )
 
 
 
 # Density plot visitor reported income on Log scale with "rug" to show sample data
 
 incden<- ggplot(dem, aes(x= Income))+geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
-  geom_rug(aes(x=Income, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,0.65), name="Proportion of respondents") +
-  scale_x_continuous(name= "Log (Annual Income)", trans="log1p", labels=scales::label_number(), breaks=c(10000,50000,150000)) + theme_themeo() 
+  geom_rug(aes(x=Income, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,0.65), breaks=c(0.0,0.3,0.6), name="") +
+  scale_x_continuous(name= "Log (Annual Income)", trans="log1p", labels=scales::label_number(), breaks=c(10000,50000,150000)) + themeKV 
 
 # Bar plot of origin of visit
 # Not currently using
@@ -143,18 +146,8 @@ hm<- ggplot(home, aes(x=name, y= prop))+ geom_bar(stat="identity")+ theme_themeo
 dem3<- dem %>% filter(Partysize <30) 
 Psden<- ggplot(dem3, aes(x= Partysize))+geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
   geom_rug(aes(x=Partysize, y=0), sides="b", position="jitter") + scale_y_continuous(limits=c(0,0.45), name="", breaks=c(0.0,0.2,0.4)) +
-  scale_x_continuous(name= "Party Size") +
-  theme_classic()+
-  theme(strip.background = element_blank(),
-        axis.line = element_blank(),
-        text=element_text(size=15),
-        axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
-        axis.text.y = element_text(margin = margin( c(1,0.2), unit = "cm")),
-        axis.ticks.length=unit(-0.1, "cm"),
-        panel.border = element_rect(colour = "black", fill=NA, size=.5),
-        legend.title=element_blank(),
-        legend.position="bottom",
-        strip.text=element_text(hjust=0) )
+  scale_x_continuous(name= "Party Size") + themeKV
+
 
 #Grouped by Day trip or multiday. Heavily overlapped. Not using
 Psden2<- ggplot(dem3, aes(x= Partysize, group=TripType))+geom_density(alpha=0.3, color= "#026AA4",fill= "#026AA4")+ 
@@ -163,10 +156,12 @@ Psden2<- ggplot(dem3, aes(x= Partysize, group=TripType))+geom_density(alpha=0.3,
   theme_classic()
 
 ## Combining plots together and exporting
-denp<- (ageden + visden)/(incden + Psden )
-ggsave("Figure_2_density_Feb11.pdf",width= 183, units="mm", denp)
-ggsave("Figure_2_density_Feb11.png",width= 183, units="mm", denp)
+denp<- (ageden + Psden)/(incden + visden ) # square layout
+denp2<-(ageden / incden / visden / Psden) # vertical layout
+ggsave("Figure_3_density_Feb11.pdf",width= 140,height=140, units="mm", denp)
+ggsave("Figure_3_density_Feb11.png",width= 140,height=140, units="mm", denp)
 
+ggsave("Figure_3_vertical.pdf", width=90, height=190,units="mm",denp2)
 
 ####################### Summary and plotting of attributes rank scores ########################
 dat2<- read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/AttributeRank.csv"), header=T)
@@ -209,13 +204,14 @@ chisq.test(tbl) # Chi-Square test
   #### Difference of seeing otters ############
   ## Shows the difference in rank based on seeing sea otters in a single plot
    datdif<-dat4 %>% left_join(dat4, suffix=c("1","2"), by = c("name")) %>% filter(mean1 != mean2) %>% mutate(dif= mean1-mean2, hi= (mean1+ sd1)-(mean2 + sd2), lo= (mean1 - sd1)-(mean2 - sd2)) %>% filter(OtterYN1==1)  
-    pdif<- ggplot(datdif, aes(x=reorder(name, -dif), y=dif))+ geom_bar(stat="identity") + scale_y_continuous(name="Change in Ranking Score") + geom_errorbar(aes(ymin=lo, ymax=hi, width=0.5))+
+    
+   pdif<- ggplot(datdif, aes(x=reorder(name, -dif), y=dif))+ geom_bar(stat="identity") + scale_y_continuous(name="Change in Ranking Score") + geom_errorbar(aes(ymin=lo, ymax=hi, width=0.5))+
      scale_x_discrete(name= "Attribute",label=c("Sea Otter","Convenience"," Uniqueness","Birds","Other Wildlife","Fish")) + geom_hline(yintercept= 0) +
      theme_themeo()
 
   # Save plot 
-    ggsave("Ranking_change.pdf", width=183, units="mm", plot=pdif)
-    ggsave("Ranking_change.png", width=183, units="mm", plot=pdif)
+    ggsave("Figure_4_Ranking_change.pdf", width=183,height=90, units="mm", plot=pdif)
+    ggsave("Figure_4_Ranking_change.png", width=183, height=90, units="mm", plot=pdif)
 
 ############## Willingness to Pay Analyses ###############################################
 datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact/data/WTPsurvey.csv"), header=T)
@@ -255,6 +251,7 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
                      Attrib_Convenience  | ESBID_1 + ESBID_2,dist="logistic", na.rm=TRUE, data=datES)
     Esd3<-dbchoice(ESR1 +ESR2 ~ 1 + log(Income) + Attrib_Otter | ESBID_1 + ESBID_2,dist="logistic", na.rm=TRUE, data=datES)
     AIC(ESd0,Esd1,Esdfull, Esd2, Esd3) # Esd3 had lowest AIC 
+    AICc<- AIC(Esd3)+ (24/140)
     
     summary(Esd3)
     
@@ -297,7 +294,7 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
         
         Pred1<-ggplot(Preds, aes(x=OTBID_1, y= value, color=variable)) +geom_smooth(method="loess", size=2) +scale_x_continuous(name="Proposed Fee Amount (USD)") +theme_themeo() +
           scale_color_manual(breaks= c("Spred1","Spred"), labels=c("Elkhorn Slough", "Sea Otter"), values= c("#026AA4", "#990000" )) +
-          scale_y_continuous(limits= c(0,1), name="Probability of voting yes") + theme( legend.justification= c(0.9,0.9), legend.position=c(0.9,0.9))
+          scale_y_continuous(limits= c(0,1), name="Probability of voting yes") + theme(legend.justification= c(0.9,0.9), legend.position=c(0.9,0.9)) +themeKV
         
         ggsave("Fig4_WTP.pdf",Pred1, width=183, scale =1,units="mm")
         ggsave("Fig4_WTP.png",Pred1, width=183, scale =1,units="mm")
@@ -315,9 +312,23 @@ datWTP<-read.csv(paste0("C:/Users/",Sys.info()[7],"/Seaotter_tourism_econ_impact
         
         Preds<-melt(df1,id.vars=c("Attrib_Otter", "Income", "OTBID_1"))
         
-        Pred2<-ggplot(Preds, aes(x=Attrib_Otter, y= value, color=variable)) +geom_line(size=1) +scale_x_continuous(name="Ranking Score of Sea Otters") +theme_themeo() +
+        Pred2<-ggplot(Preds, aes(x=Attrib_Otter, y= value, color=variable)) +geom_line(size=1) +scale_x_continuous(name="Ranking score of sea otters") +
           scale_color_manual(breaks= c("Spr","Spr1"), labels=c("Elkhorn Slough", "Sea Otter"), values= c("#026AA4", "#990000" )) +
-          scale_y_continuous(limits= c(0,0.9), name="Probability of voting yes") + theme( legend.justification= c(0.9,0.95), legend.position=c(0.9,0.95))
+          scale_y_continuous(limits= c(0,0.9), name="Probability of voting yes") +
+          theme_classic()+
+          theme(strip.background = element_blank(),
+                axis.line = element_blank(),
+                text=element_text(size=12),
+                axis.text.x = element_text(margin = margin( 0.2, unit = "cm")),
+                axis.text.y = element_text(margin = margin( c(1,0.2), unit = "cm")),
+                axis.ticks.length=unit(-0.1, "cm"),
+                panel.border = element_rect(colour = "black", fill=NA, size=.5),
+                legend.text= element_text(size= 10),
+                legend.justification= c(0.95,0.95), 
+                legend.position= c(0.95,0.3),
+                legend.title=element_blank(),
+                strip.text=element_text(hjust=0) )
+                                                                                            
         
-        ggsave("Fig4_OtterRank.pdf",Pred2, width=183, scale =1,units="mm")
-        ggsave("Fig4_OtterRank.png",Pred2, width=183, scale =1,units="mm")
+        ggsave("Fig5_OtterRank.pdf",Pred2, width=90,height=90, scale =1,units="mm")
+        ggsave("Fig5_OtterRank.png",Pred2, width=90, height=90,scale =1,units="mm")
